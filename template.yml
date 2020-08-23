@@ -1,0 +1,115 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Serverless Application Ephemerality
+
+Parameters:
+  ApplicationName:
+    Type: String
+    Default: 'ServerlessApplicationEphemerality'
+  EphemeralityFunctionName:
+    Type: String
+    Default: 'EphemeralityFunction'
+
+Metadata:
+  AWS::ServerlessRepo::Application:
+    Name: ServerlessApplicationEphemerality
+    Description: Serverless Application Ephemerality
+    Author: tanaka-takurou
+    SpdxLicenseId: MIT
+    LicenseUrl: LICENSE.txt
+    ReadmeUrl: README.md
+    Labels: ['ServerlessRepo']
+    HomePageUrl: https://github.com/tanaka-takurou/serverless-application-ephemerality-page-go
+    SemanticVersion: 0.0.1
+    SourceCodeUrl: https://github.com/tanaka-takurou/serverless-application-ephemerality-page-go
+
+Resources:
+  EphemeralityApi:
+    Type: AWS::Serverless::HttpApi
+  EphemeralityFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Ref EphemeralityFunctionName
+      CodeUri: bin/
+      Handler: main
+      MemorySize: 256
+      Runtime: go1.x
+      Description: 'Front Function'
+      Role: !GetAtt EphemeralityFunctionRole.Arn
+      Events:
+        EphemeralityApi:
+          Type: HttpApi
+          Properties:
+            Path: '/'
+            Method: get
+            ApiId: !Ref EphemeralityApi
+      Environment:
+        Variables:
+          COUNT: "0"
+          LIMIT: "3"
+          REGION: !Ref AWS::Region
+          STACK_NAME: !Ref AWS::StackName
+          FUNCTION_NAME: !Ref EphemeralityFunctionName
+  EphemeralityApiPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref EphemeralityFunction
+      Principal: apigateway.amazonaws.com
+  ScheduledRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: ScheduledRule
+      ScheduleExpression: 'rate(1 minute)'
+      State: 'ENABLED'
+      Targets:
+        - Arn: !GetAtt EphemeralityFunction.Arn
+          Id: TargetEphemeralityFunction
+  PermissionForEventsToInvokeLambda:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref EphemeralityFunction
+      Action: 'lambda:InvokeFunction'
+      Principal: 'events.amazonaws.com'
+      SourceArn: !GetAtt ScheduledRule.Arn
+  EphemeralityFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      MaxSessionDuration: 3600
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: 'Allow'
+            Principal:
+              Service:
+                - 'lambda.amazonaws.com'
+            Action:
+              - 'sts:AssumeRole'
+      Policies:
+        - PolicyName: KillFunctionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: 'Allow'
+                Action:
+                  - 'logs:CreateLogGroup'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                Resource: '*'
+              - Effect: 'Allow'
+                Action:
+                  - 'cloudformation:DescribeStackResources'
+                  - 'cloudformation:DeleteStack'
+                Resource: '*'
+              - Effect: 'Allow'
+                Action:
+                  - 'lambda:*'
+                  - 'events:RemoveTargets'
+                  - 'events:DeleteRule'
+                  - 'iam:DeleteRolePolicy'
+                  - 'iam:DeleteRole'
+                Resource: '*'
+
+Outputs:
+  APIURI:
+    Value: !Join [ '', [ 'https://', !Ref EphemeralityApi, '.execute-api.',!Ref 'AWS::Region','.amazonaws.com/'] ]
