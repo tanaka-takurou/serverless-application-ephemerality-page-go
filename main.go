@@ -17,7 +17,7 @@ import (
 
 var cfg aws.Config
 
-func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+func HandleRequest(ctx context.Context, request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
 	count, _ := strconv.Atoi(os.Getenv("COUNT"))
 	limit, _ := strconv.Atoi(os.Getenv("LIMIT"))
 	if count < limit {
