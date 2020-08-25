@@ -20,6 +20,10 @@ var cfg aws.Config
 func HandleRequest(ctx context.Context, request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
 	count, _ := strconv.Atoi(os.Getenv("COUNT"))
 	limit, _ := strconv.Atoi(os.Getenv("LIMIT"))
+	if &request.RequestContext != nil && &request.RequestContext.HTTP != nil && len (request.RequestContext.HTTP.SourceIP) > 0 {
+		log.Println(request.RequestContext.HTTP.SourceIP)
+		goto Response
+	}
 	if count < limit {
 		client := slambda.New(cfg)
 		req := client.GetFunctionConfigurationRequest(&slambda.GetFunctionConfigurationInput{
@@ -52,6 +56,7 @@ func HandleRequest(ctx context.Context, request events.APIGatewayV2HTTPRequest) 
 			log.Println(err)
 		}
 	}
+Response:
 	return events.APIGatewayProxyResponse{
 		StatusCode:      http.StatusOK,
 		IsBase64Encoded: false,

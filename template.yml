@@ -12,16 +12,16 @@ Parameters:
 
 Metadata:
   AWS::ServerlessRepo::Application:
-    Name: ServerlessApplicationEphemerality
-    Description: Serverless Application Ephemerality
+    Name: ServerlessApplicationEphemerality Scheduled
+    Description: Serverless Application Ephemerality Scheduled
     Author: tanaka-takurou
     SpdxLicenseId: MIT
     LicenseUrl: LICENSE.txt
     ReadmeUrl: README.md
     Labels: ['ServerlessRepo']
-    HomePageUrl: https://github.com/tanaka-takurou/serverless-application-ephemerality-page-go
+    HomePageUrl: https://github.com/tanaka-takurou/serverless-application-ephemerality-page-go/tree/scheduled
     SemanticVersion: 0.0.1
-    SourceCodeUrl: https://github.com/tanaka-takurou/serverless-application-ephemerality-page-go
+    SourceCodeUrl: https://github.com/tanaka-takurou/serverless-application-ephemerality-page-go/tree/scheduled
 
 Resources:
   EphemeralityApi:
