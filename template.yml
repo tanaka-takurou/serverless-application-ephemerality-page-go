@@ -8,20 +8,20 @@ Parameters:
     Default: 'ServerlessApplicationEphemerality'
   EphemeralityFunctionName:
     Type: String
-    Default: 'EphemeralityFunction'
+    Default: 'EphemeralityFunctionRandom'
 
 Metadata:
   AWS::ServerlessRepo::Application:
-    Name: ServerlessApplicationEphemerality
-    Description: Serverless Application Ephemerality
+    Name: ServerlessApplicationEphemeralityRandom
+    Description: Serverless Application Ephemerality Random
     Author: tanaka-takurou
     SpdxLicenseId: MIT
     LicenseUrl: LICENSE.txt
     ReadmeUrl: README.md
     Labels: ['ServerlessRepo']
-    HomePageUrl: https://github.com/tanaka-takurou/serverless-application-ephemerality-page-go
+    HomePageUrl: https://github.com/tanaka-takurou/serverless-application-ephemerality-page-go/tree/random
     SemanticVersion: 0.0.1
-    SourceCodeUrl: https://github.com/tanaka-takurou/serverless-application-ephemerality-page-go
+    SourceCodeUrl: https://github.com/tanaka-takurou/serverless-application-ephemerality-page-go/tree/random
 
 Resources:
   EphemeralityApi:
@@ -45,8 +45,7 @@ Resources:
             ApiId: !Ref EphemeralityApi
       Environment:
         Variables:
-          COUNT: "0"
-          LIMIT: "3"
+          RANDOM_VALUE: "3"
           REGION: !Ref AWS::Region
           STACK_NAME: !Ref AWS::StackName
           FUNCTION_NAME: !Ref EphemeralityFunctionName
@@ -56,22 +55,6 @@ Resources:
       Action: lambda:InvokeFunction
       FunctionName: !Ref EphemeralityFunction
       Principal: apigateway.amazonaws.com
-  ScheduledRule:
-    Type: AWS::Events::Rule
-    Properties:
-      Description: ScheduledRule
-      ScheduleExpression: 'rate(1 minute)'
-      State: 'ENABLED'
-      Targets:
-        - Arn: !GetAtt EphemeralityFunction.Arn
-          Id: TargetEphemeralityFunction
-  PermissionForEventsToInvokeLambda:
-    Type: AWS::Lambda::Permission
-    Properties:
-      FunctionName: !Ref EphemeralityFunction
-      Action: 'lambda:InvokeFunction'
-      Principal: 'events.amazonaws.com'
-      SourceArn: !GetAtt ScheduledRule.Arn
   EphemeralityFunctionRole:
     Type: AWS::IAM::Role
     Properties:

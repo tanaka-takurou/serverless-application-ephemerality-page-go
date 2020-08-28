@@ -3,46 +3,26 @@ package main
 import (
 	"os"
 	"log"
+	"time"
 	"context"
-	"strconv"
+	"strings"
 	"net/http"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/aws/external"
-	slambda "github.com/aws/aws-sdk-go-v2/service/lambda"
 	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
 )
 
 var cfg aws.Config
 
+const layout string = "20060102150405.000"
+
 func HandleRequest(ctx context.Context, request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
-	count, _ := strconv.Atoi(os.Getenv("COUNT"))
-	limit, _ := strconv.Atoi(os.Getenv("LIMIT"))
-	if count < limit {
-		client := slambda.New(cfg)
-		req := client.GetFunctionConfigurationRequest(&slambda.GetFunctionConfigurationInput{
-			FunctionName: aws.String(os.Getenv("FUNCTION_NAME")),
-		})
-		res, err := req.Send(ctx)
-		if err != nil {
-			log.Println(err)
-		} else {
-			env := res.GetFunctionConfigurationOutput.Environment.Variables
-			env["COUNT"] = strconv.Itoa(count + 1)
-			req_ := client.UpdateFunctionConfigurationRequest(&slambda.UpdateFunctionConfigurationInput{
-				FunctionName: aws.String(os.Getenv("FUNCTION_NAME")),
-				Environment: &slambda.Environment{
-					Variables: env,
-				},
-			})
-			_, err := req_.Send(ctx)
-			if err != nil {
-				log.Println(err)
-			}
-		}
-	} else {
+	t := time.Now()
+	t_ := strings.Replace(t.Format(layout), ".", "", 1)
+	if os.Getenv("RANDOM_VALUE") == t_[(len(t_) - len(os.Getenv("RANDOM_VALUE"))):] {
 		client := cloudformation.New(cfg)
 		req := client.DeleteStackRequest(&cloudformation.DeleteStackInput{
 			StackName: aws.String(os.Getenv("STACK_NAME")),
