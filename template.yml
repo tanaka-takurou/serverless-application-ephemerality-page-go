@@ -5,14 +5,14 @@ Description: Serverless Application Ephemerality
 Parameters:
   ApplicationName:
     Type: String
-    Default: 'ServerlessApplicationEphemerality'
+    Default: 'ServerlessApplicationEphemeralityScheduled'
   EphemeralityFunctionName:
     Type: String
-    Default: 'EphemeralityFunction'
+    Default: 'EphemeralityFunctionScheduled'
 
 Metadata:
   AWS::ServerlessRepo::Application:
-    Name: ServerlessApplicationEphemerality Scheduled
+    Name: ServerlessApplicationEphemeralityScheduled
     Description: Serverless Application Ephemerality Scheduled
     Author: tanaka-takurou
     SpdxLicenseId: MIT
