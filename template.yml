@@ -12,8 +12,8 @@ Parameters:
 
 Metadata:
   AWS::ServerlessRepo::Application:
-    Name: Serverless Application Minimum
-    Description: This application is deleted when accessed.
+    Name: Serverless-Application-Minimum
+    Description: 'This application is deleted when accessed.'
     Author: tanaka-takurou
     SpdxLicenseId: MIT
     LicenseUrl: LICENSE.txt
