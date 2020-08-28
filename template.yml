@@ -5,7 +5,7 @@ Description: Serverless Application Ephemerality
 Parameters:
   ApplicationName:
     Type: String
-    Default: 'ServerlessApplicationEphemerality'
+    Default: 'ServerlessApplicationEphemeralityRandom'
   EphemeralityFunctionName:
     Type: String
     Default: 'EphemeralityFunctionRandom'
