@@ -5,10 +5,10 @@ Description: Serverless Application Ephemerality
 Parameters:
   ApplicationName:
     Type: String
-    Default: 'ServerlessApplicationEphemerality'
+    Default: 'ServerlessApplicationEphemeralityMinimum'
   EphemeralityFunctionName:
     Type: String
-    Default: 'EphemeralityFunction'
+    Default: 'EphemeralityFunctionMinimum'
 
 Metadata:
   AWS::ServerlessRepo::Application:
