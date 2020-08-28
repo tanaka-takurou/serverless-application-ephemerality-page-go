@@ -12,8 +12,8 @@ Parameters:
 
 Metadata:
   AWS::ServerlessRepo::Application:
-    Name: ServerlessApplicationEphemeralityRandom
-    Description: Serverless Application Ephemerality Random
+    Name: Serverless Application Random
+    Description: This application is deleted in certain probability when accessed.
     Author: tanaka-takurou
     SpdxLicenseId: MIT
     LicenseUrl: LICENSE.txt
