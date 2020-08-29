@@ -92,6 +92,10 @@ Resources:
                   - 'iam:DeleteRolePolicy'
                   - 'iam:DeleteRole'
                 Resource: '*'
+              - Effect: 'Allow'
+                Action:
+                  - 'apigateway:*'
+                Resource: '*'
 
 Outputs:
   APIURI:
