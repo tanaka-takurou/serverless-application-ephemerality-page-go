@@ -20,7 +20,7 @@ Metadata:
     ReadmeUrl: README.md
     Labels: ['ServerlessRepo']
     HomePageUrl: https://github.com/tanaka-takurou/serverless-application-ephemerality-page-go/tree/random
-    SemanticVersion: 0.0.2
+    SemanticVersion: 0.0.3
     SourceCodeUrl: https://github.com/tanaka-takurou/serverless-application-ephemerality-page-go/tree/random
 
 Resources:
@@ -35,7 +35,32 @@ Resources:
       MemorySize: 256
       Runtime: go1.x
       Description: 'Front Function'
-      Role: !GetAtt EphemeralityFunctionRole.Arn
+      Policies:
+      - Statement:
+        - Effect: 'Allow'
+          Action:
+            - 'logs:CreateLogGroup'
+            - 'logs:CreateLogStream'
+            - 'logs:PutLogEvents'
+          Resource: '*'
+        - Effect: 'Allow'
+          Action:
+            - 'cloudformation:DescribeStackResources'
+            - 'cloudformation:DeleteStack'
+          Resource: '*'
+        - Effect: 'Allow'
+          Action:
+            - 'lambda:*'
+            - 'events:RemoveTargets'
+            - 'events:DeleteRule'
+            - 'iam:DetachRolePolicy'
+            - 'iam:DeleteRolePolicy'
+            - 'iam:DeleteRole'
+          Resource: '*'
+        - Effect: 'Allow'
+          Action:
+            - 'apigateway:*'
+          Resource: '*'
       Events:
         EphemeralityApi:
           Type: HttpApi
@@ -55,47 +80,6 @@ Resources:
       Action: lambda:InvokeFunction
       FunctionName: !Ref EphemeralityFunction
       Principal: apigateway.amazonaws.com
-  EphemeralityFunctionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      MaxSessionDuration: 3600
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: 'Allow'
-            Principal:
-              Service:
-                - 'lambda.amazonaws.com'
-            Action:
-              - 'sts:AssumeRole'
-      Policies:
-        - PolicyName: KillFunctionPolicy
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: 'Allow'
-                Action:
-                  - 'logs:CreateLogGroup'
-                  - 'logs:CreateLogStream'
-                  - 'logs:PutLogEvents'
-                Resource: '*'
-              - Effect: 'Allow'
-                Action:
-                  - 'cloudformation:DescribeStackResources'
-                  - 'cloudformation:DeleteStack'
-                Resource: '*'
-              - Effect: 'Allow'
-                Action:
-                  - 'lambda:*'
-                  - 'events:RemoveTargets'
-                  - 'events:DeleteRule'
-                  - 'iam:DeleteRolePolicy'
-                  - 'iam:DeleteRole'
-                Resource: '*'
-              - Effect: 'Allow'
-                Action:
-                  - 'apigateway:*'
-                Resource: '*'
 
 Outputs:
   APIURI:
