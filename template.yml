@@ -53,6 +53,7 @@ Resources:
             - 'lambda:*'
             - 'events:RemoveTargets'
             - 'events:DeleteRule'
+            - 'iam:DetachRolePolicy'
             - 'iam:DeleteRolePolicy'
             - 'iam:DeleteRole'
           Resource: '*'
