@@ -20,7 +20,7 @@ Metadata:
     ReadmeUrl: README.md
     Labels: ['ServerlessRepo']
     HomePageUrl: https://github.com/tanaka-takurou/serverless-application-ephemerality-page-go/tree/minimum
-    SemanticVersion: 0.0.3
+    SemanticVersion: 0.0.4
     SourceCodeUrl: https://github.com/tanaka-takurou/serverless-application-ephemerality-page-go/tree/minimum
 
 Resources:
@@ -70,11 +70,8 @@ Resources:
             ApiId: !Ref EphemeralityApi
       Environment:
         Variables:
-          COUNT: "0"
-          LIMIT: "0"
           REGION: !Ref AWS::Region
           STACK_NAME: !Ref AWS::StackName
-          FUNCTION_NAME: !Ref EphemeralityFunctionName
   EphemeralityApiPermission:
     Type: AWS::Lambda::Permission
     Properties:
