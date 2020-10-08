@@ -9,18 +9,17 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/aws/external"
+	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
 )
 
 var cfg aws.Config
 
 func HandleRequest(ctx context.Context, request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
-	client := cloudformation.New(cfg)
-	req := client.DeleteStackRequest(&cloudformation.DeleteStackInput{
+	client := getCloudformationClient()
+	_, err := client.DeleteStack(ctx, &cloudformation.DeleteStackInput{
 		StackName: aws.String(os.Getenv("STACK_NAME")),
 	})
-	_, err := req.Send(ctx)
 	if err != nil {
 		log.Println(err)
 	}
@@ -34,13 +33,21 @@ func HandleRequest(ctx context.Context, request events.APIGatewayV2HTTPRequest) 
 	}, nil
 }
 
-func init() {
+func getCloudformationClient() *cloudformation.Client {
+	if cfg.Region != os.Getenv("REGION") {
+		cfg = getConfig()
+	}
+	return cloudformation.NewFromConfig(cfg)
+}
+
+func getConfig() aws.Config {
 	var err error
-	cfg, err = external.LoadDefaultAWSConfig()
-	cfg.Region = os.Getenv("REGION")
+	newConfig, err := config.LoadDefaultConfig()
+	newConfig.Region = os.Getenv("REGION")
 	if err != nil {
 		log.Print(err)
 	}
+	return newConfig
 }
 
 func main() {
