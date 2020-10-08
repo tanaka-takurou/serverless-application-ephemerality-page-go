@@ -1,4 +1,4 @@
-module github.com/tanaka-takurou/serverless-message-board-go
+module github.com/tanaka-takurou/serverless-application-ephemerality-page-go/tree/minimum
 
 go 1.15
 
