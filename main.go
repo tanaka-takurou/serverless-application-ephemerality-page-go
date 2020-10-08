@@ -10,8 +10,9 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/aws/external"
+	"github.com/aws/aws-sdk-go-v2/config"
 	slambda "github.com/aws/aws-sdk-go-v2/service/lambda"
+	"github.com/aws/aws-sdk-go-v2/service/lambda/types"
 	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
 )
 
@@ -21,33 +22,30 @@ func HandleRequest(ctx context.Context, request events.APIGatewayV2HTTPRequest) 
 	count, _ := strconv.Atoi(os.Getenv("COUNT"))
 	limit, _ := strconv.Atoi(os.Getenv("LIMIT"))
 	if count < limit {
-		client := slambda.New(cfg)
-		req := client.GetFunctionConfigurationRequest(&slambda.GetFunctionConfigurationInput{
+		client := getLambdaClient()
+		res, err := client.GetFunctionConfiguration(ctx, &slambda.GetFunctionConfigurationInput{
 			FunctionName: aws.String(os.Getenv("FUNCTION_NAME")),
 		})
-		res, err := req.Send(ctx)
 		if err != nil {
 			log.Println(err)
 		} else {
-			env := res.GetFunctionConfigurationOutput.Environment.Variables
-			env["COUNT"] = strconv.Itoa(count + 1)
-			req_ := client.UpdateFunctionConfigurationRequest(&slambda.UpdateFunctionConfigurationInput{
+			env := res.Environment.Variables
+			env["COUNT"] = aws.String(strconv.Itoa(count + 1))
+			_, err := client.UpdateFunctionConfiguration(ctx, &slambda.UpdateFunctionConfigurationInput{
 				FunctionName: aws.String(os.Getenv("FUNCTION_NAME")),
-				Environment: &slambda.Environment{
+				Environment: &types.Environment{
 					Variables: env,
 				},
 			})
-			_, err := req_.Send(ctx)
 			if err != nil {
 				log.Println(err)
 			}
 		}
 	} else {
-		client := cloudformation.New(cfg)
-		req := client.DeleteStackRequest(&cloudformation.DeleteStackInput{
+		client := getCloudformationClient()
+		_, err := client.DeleteStack(ctx, &cloudformation.DeleteStackInput{
 			StackName: aws.String(os.Getenv("STACK_NAME")),
 		})
-		_, err := req.Send(ctx)
 		if err != nil {
 			log.Println(err)
 		}
@@ -62,13 +60,28 @@ func HandleRequest(ctx context.Context, request events.APIGatewayV2HTTPRequest) 
 	}, nil
 }
 
-func init() {
+func getLambdaClient() *slambda.Client {
+	if cfg.Region != os.Getenv("REGION") {
+		cfg = getConfig()
+	}
+	return slambda.NewFromConfig(cfg)
+}
+
+func getCloudformationClient() *cloudformation.Client {
+	if cfg.Region != os.Getenv("REGION") {
+		cfg = getConfig()
+	}
+	return cloudformation.NewFromConfig(cfg)
+}
+
+func getConfig() aws.Config {
 	var err error
-	cfg, err = external.LoadDefaultAWSConfig()
-	cfg.Region = os.Getenv("REGION")
+	newConfig, err := config.LoadDefaultConfig()
+	newConfig.Region = os.Getenv("REGION")
 	if err != nil {
 		log.Print(err)
 	}
+	return newConfig
 }
 
 func main() {
