@@ -1,4 +1,4 @@
-module https://github.com/tanaka-takurou/serverless-application-ephemerality-page-go/tree/random
+module github.com/tanaka-takurou/serverless-application-ephemerality-page-go/tree/random
 
 go 1.15
 
