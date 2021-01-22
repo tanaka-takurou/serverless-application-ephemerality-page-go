@@ -26,7 +26,7 @@ func HandleRequest(ctx context.Context, request events.APIGatewayV2HTTPRequest) 
 		goto Response
 	}
 	if count < limit {
-		client := getLambdaClient()
+		client := getLambdaClient(ctx)
 		res, err := client.GetFunctionConfiguration(ctx, &slambda.GetFunctionConfigurationInput{
 			FunctionName: aws.String(os.Getenv("FUNCTION_NAME")),
 		})
@@ -34,7 +34,7 @@ func HandleRequest(ctx context.Context, request events.APIGatewayV2HTTPRequest) 
 			log.Println(err)
 		} else {
 			env := res.Environment.Variables
-			env["COUNT"] = aws.String(strconv.Itoa(count + 1))
+			env["COUNT"] = strconv.Itoa(count + 1)
 			_, err := client.UpdateFunctionConfiguration(ctx, &slambda.UpdateFunctionConfigurationInput{
 				FunctionName: aws.String(os.Getenv("FUNCTION_NAME")),
 				Environment: &types.Environment{
@@ -46,7 +46,7 @@ func HandleRequest(ctx context.Context, request events.APIGatewayV2HTTPRequest) 
 			}
 		}
 	} else {
-		client := getCloudformationClient()
+		client := getCloudformationClient(ctx)
 		_, err := client.DeleteStack(ctx, &cloudformation.DeleteStackInput{
 			StackName: aws.String(os.Getenv("STACK_NAME")),
 		})
@@ -54,7 +54,7 @@ func HandleRequest(ctx context.Context, request events.APIGatewayV2HTTPRequest) 
 			log.Println(err)
 		}
 	}
-Response:
+	Response:
 	return events.APIGatewayProxyResponse{
 		StatusCode:      http.StatusOK,
 		IsBase64Encoded: false,
@@ -65,29 +65,21 @@ Response:
 	}, nil
 }
 
-func getLambdaClient() *slambda.Client {
-	if cfg.Region != os.Getenv("REGION") {
-		cfg = getConfig()
-	}
-	return slambda.NewFromConfig(cfg)
+func getLambdaClient(ctx context.Context) *slambda.Client {
+	return slambda.NewFromConfig(getConfig(ctx))
 }
 
-func getCloudformationClient() *cloudformation.Client {
-	if cfg.Region != os.Getenv("REGION") {
-		cfg = getConfig()
-	}
-	return cloudformation.NewFromConfig(cfg)
+func getCloudformationClient(ctx context.Context) *cloudformation.Client {
+	return cloudformation.NewFromConfig(getConfig(ctx))
 }
 
-func getConfig() aws.Config {
+func getConfig(ctx context.Context) aws.Config {
 	var err error
-	cfg.Region = os.Getenv("REGION")
-	newConfig, err := config.LoadDefaultConfig()
-	newConfig.Region = os.Getenv("REGION")
+	cfg, err := config.LoadDefaultConfig(ctx, config.WithRegion(os.Getenv("REGION")))
 	if err != nil {
 		log.Print(err)
 	}
-	return newConfig
+	return cfg
 }
 
 func main() {
