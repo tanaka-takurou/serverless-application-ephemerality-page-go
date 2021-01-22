@@ -23,7 +23,7 @@ func HandleRequest(ctx context.Context, request events.APIGatewayV2HTTPRequest) 
 	t := time.Now()
 	t_ := strings.Replace(t.Format(layout), ".", "", 1)
 	if os.Getenv("RANDOM_VALUE") == t_[(len(t_) - len(os.Getenv("RANDOM_VALUE"))):] {
-		client := getCloudformationClient()
+		client := getCloudformationClient(ctx)
 		_, err := client.DeleteStack(ctx, &cloudformation.DeleteStackInput{
 			StackName: aws.String(os.Getenv("STACK_NAME")),
 		})
@@ -41,21 +41,17 @@ func HandleRequest(ctx context.Context, request events.APIGatewayV2HTTPRequest) 
 	}, nil
 }
 
-func getCloudformationClient() *cloudformation.Client {
-	if cfg.Region != os.Getenv("REGION") {
-		cfg = getConfig()
-	}
-	return cloudformation.NewFromConfig(cfg)
+func getCloudformationClient(ctx context.Context) *cloudformation.Client {
+	return cloudformation.NewFromConfig(getConfig(ctx))
 }
 
-func getConfig() aws.Config {
+func getConfig(ctx context.Context) aws.Config {
 	var err error
-	newConfig, err := config.LoadDefaultConfig()
-	newConfig.Region = os.Getenv("REGION")
+	cfg, err := config.LoadDefaultConfig(ctx, config.WithRegion(os.Getenv("REGION")))
 	if err != nil {
 		log.Print(err)
 	}
-	return newConfig
+	return cfg
 }
 
 func main() {
