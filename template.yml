@@ -29,11 +29,13 @@ Resources:
   EphemeralityFunction:
     Type: AWS::Serverless::Function
     Properties:
+      Architectures:
+      - arm64
       FunctionName: !Ref EphemeralityFunctionName
       CodeUri: bin/
-      Handler: main
+      Handler: bootstrap
       MemorySize: 256
-      Runtime: go1.x
+      Runtime: provided.al2
       Description: 'Front Function'
       Policies:
       - Statement:
