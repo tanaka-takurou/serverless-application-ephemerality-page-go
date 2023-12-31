@@ -20,7 +20,7 @@ Metadata:
     ReadmeUrl: README.md
     Labels: ['ServerlessRepo']
     HomePageUrl: https://github.com/tanaka-takurou/serverless-application-ephemerality-page-go
-    SemanticVersion: 0.0.1
+    SemanticVersion: 0.0.2
     SourceCodeUrl: https://github.com/tanaka-takurou/serverless-application-ephemerality-page-go
 
 Resources:
@@ -29,11 +29,13 @@ Resources:
   EphemeralityFunction:
     Type: AWS::Serverless::Function
     Properties:
+      Architectures:
+      - arm64
       FunctionName: !Ref EphemeralityFunctionName
       CodeUri: bin/
-      Handler: main
+      Handler: bootstrap
       MemorySize: 256
-      Runtime: go1.x
+      Runtime: provided.al2
       Description: 'Front Function'
       Policies:
       - Statement:
