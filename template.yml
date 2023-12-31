@@ -19,9 +19,9 @@ Metadata:
     LicenseUrl: LICENSE.txt
     ReadmeUrl: README.md
     Labels: ['ServerlessRepo']
-    HomePageUrl: https://github.com/tanaka-takurou/serverless-application-ephemerality-page-go/tree/minimum
-    SemanticVersion: 0.0.5
-    SourceCodeUrl: https://github.com/tanaka-takurou/serverless-application-ephemerality-page-go/tree/minimum
+    HomePageUrl: https://github.com/tanaka-takurou/serverless-application-ephemerality-page-go/tree/random
+    SemanticVersion: 0.0.6
+    SourceCodeUrl: https://github.com/tanaka-takurou/serverless-application-ephemerality-page-go/tree/random
 
 Resources:
   EphemeralityApi:
